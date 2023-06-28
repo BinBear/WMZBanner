@@ -387,8 +387,15 @@
 //定时器
 - (void)createTimer{
     if (!self.timer) {
-        SEL sel = NSSelectorFromString(self.param.wMarquee?@"autoMarqueenScrollAction":@"autoScrollAction");
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:self.param.wMarquee?marginTime: self.param.wAutoScrollSecond  target:self selector:sel userInfo:nil repeats:YES];
+        __weak __typeof(self)weakSelf = self;
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:(self.param.wMarquee ? marginTime : self.param.wAutoScrollSecond) repeats:YES block:^(NSTimer * _Nonnull timer) {
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (strongSelf.param.wMarquee) {
+                [strongSelf autoMarqueenScrollAction];
+            }else {
+                [strongSelf autoScrollAction];
+            }
+        }];
         [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     }
 }
